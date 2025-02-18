@@ -5,13 +5,13 @@ Magic Newton Daily roll bot
 Clone repository:
 
 ```
-git clone https://github.com/Odipus40/magic-newton-bot.git
+git clone https://github.com/0xMonnn/Newton-Portal.git
 ```
 
 Directory Magic Newton:
 
 ```
-cd magic-newton-bot
+cd Newton-Portal
 ```
 
 install modules
@@ -44,3 +44,4 @@ Exit screen:
 CTRL + A + D
 
 Done!
+Sourc : https://github.com/Odipus40/magic-newton-bot
