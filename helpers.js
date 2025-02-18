@@ -1,20 +1,17 @@
-async function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const colors = require("colors");
 
-function displayHeader() {
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const displayHeader = () => {
   process.stdout.write("\x1Bc");
-  console.log(` █████╗ ███████╗██╗   ██╗███╗   ██╗ ██████╗`));
-  console.log(`██╔══██╗██╔════╝╚██╗ ██╔╝████╗  ██║██╔════╝`));
-  console.log(`███████║███████╗ ╚████╔╝ ██╔██╗ ██║██║      `));
-  console.log(`██╔══██║╚════██║  ╚██╔╝  ██║╚██╗██║██║      `));
-  console.log(`██║  ██║███████║   ██║   ██║ ╚████║╚██████╔ `));
-  console.log(`╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═══╝ ╚═════╝ `));
-  console.log(`               JOIN AIRDROP         `));
-  console.log(`      https://t.me/AirdropSyncReborn `));
-}
-
-module.exports = {
-  delay,
-  displayHeader,
+  console.log(" █████╗ ███████╗██╗   ██╗███╗   ██╗ ██████╗".cyan);
+  console.log("██╔══██╗██╔════╝╚██╗ ██╔╝████╗  ██║██╔════╝".cyan);
+  console.log("███████║███████╗ ╚████╔╝ ██╔██╗ ██║██║      ".cyan);
+  console.log("██╔══██║╚════██║  ╚██╔╝  ██║╚██╗██║██║      ".cyan);
+  console.log("██║  ██║███████║   ██║   ██║ ╚████║╚██████╔ ".cyan);
+  console.log("╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═══╝ ╚═════╝ ".cyan);
+  console.log("               JOIN AIRDROP         ".cyan);
+  console.log("      https://t.me/AirdropSyncReborn ".cyan);
 };
+
+module.exports = { delay, displayHeader };
