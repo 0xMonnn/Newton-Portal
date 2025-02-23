@@ -13,29 +13,7 @@ function delay(ms) {
 }
 
 function getCurrentTime() {
-  const now = new Date();
-  const day = String(now.getDate()).padStart(2, '0');
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // Januari = 0
-  const year = now.getFullYear();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  
-  return `[${day}/${month}/${year}, ${hours}:${minutes}:${seconds}]`;
-}
-
-function loadData(file) {
-  try {
-    const datas = fs.readFileSync(file, "utf8").replace(/\r/g, "").split("\n").filter(Boolean);
-    if (datas?.length <= 0) {
-      console.log(colors.red(`${getCurrentTime()} - No data found in the file ${file}`));
-      return [];
-    }
-    return datas;
-  } catch (error) {
-    console.log(`${getCurrentTime()} - File ${file} not found`.red);
-    return [];
-  }
+  return new Date().toLocaleString("id-ID", { hour12: false });
 }
 
 async function runAccount(cookie) {
@@ -48,15 +26,15 @@ async function runAccount(cookie) {
     await page.setCookie(cookie);
     await page.goto(MAGICNEWTON_URL, { waitUntil: "networkidle2", timeout: 60000 });
 
-    const userAddress = await page.$eval("p.gGRRlH.WrOCw.AEdnq.hGQgmY.jdmPpC", (el) => el.innerText).catch(() => "Unknown");
+    const userAddress = await page.$eval("p.gGRRlH.WrOCw.AEdnq.hGQgmY.jdmPpC", el => el.innerText).catch(() => "Unknown");
     console.log(`${getCurrentTime()} - 🏠 Your account: ${userAddress}`);
 
-    let userCredits = await page.$eval("#creditBalance", (el) => el.innerText).catch(() => "Unknown");
+    let userCredits = await page.$eval("#creditBalance", el => el.innerText).catch(() => "Unknown");
     console.log(`${getCurrentTime()} - 💰 Total your points: ${userCredits}`);
 
     await page.waitForSelector("button", { timeout: 30000 });
-    const rollNowClicked = await page.$$eval("button", (buttons) => {
-      const target = buttons.find((btn) => btn.innerText && btn.innerText.includes("Roll now"));
+    const rollNowClicked = await page.$$eval("button", buttons => {
+      const target = buttons.find(btn => btn.innerText && btn.innerText.includes("Roll now"));
       if (target) {
         target.click();
         return true;
@@ -69,8 +47,8 @@ async function runAccount(cookie) {
     }
     await delay(5000);
 
-    const letsRollClicked = await page.$$eval("button", (buttons) => {
-      const target = buttons.find((btn) => btn.innerText && btn.innerText.includes("Let's roll"));
+    const letsRollClicked = await page.$$eval("button", buttons => {
+      const target = buttons.find(btn => btn.innerText && btn.innerText.includes("Let's roll"));
       if (target) {
         target.click();
         return true;
@@ -80,8 +58,8 @@ async function runAccount(cookie) {
 
     if (letsRollClicked) {
       await delay(5000);
-      const throwDiceClicked = await page.$$eval("button", (buttons) => {
-        const target = buttons.find((btn) => btn.innerText && btn.innerText.includes("Throw Dice"));
+      const throwDiceClicked = await page.$$eval("button", buttons => {
+        const target = buttons.find(btn => btn.innerText && btn.innerText.includes("Throw Dice"));
         if (target) {
           target.click();
           return true;
@@ -90,10 +68,54 @@ async function runAccount(cookie) {
       });
 
       if (throwDiceClicked) {
-        console.log(`${getCurrentTime()} - ⏳ Waiting for 60 seconds for dice animation...`);
-        await delay(60000);
-        userCredits = await page.$eval("#creditBalance", (el) => el.innerText).catch(() => "Unknown");
-        console.log(`${getCurrentTime()} - 💰 Latest balance: ${userCredits}`);
+        console.log(`${getCurrentTime()} - ⏳ Waiting for 30 seconds for dice animation...`);
+        await delay(30000);
+
+        for (let i = 1; i <= 5; i++) {
+          const pressClicked = await page.$$eval("button > div > p", buttons => {
+            const target = buttons.find(btn => btn.innerText && btn.innerText.includes("Press"));
+            if (target) {
+              target.click();
+              return true;
+            }
+            return false;
+          });
+
+          if (pressClicked) {
+            console.log(`${getCurrentTime()} - 🖱️ Press button clicked (${i}/5)`);
+            await delay(3000);
+            
+            const currentPoints = await page.$eval("h2.jsx-f1b6ce0373f41d79.gRUWXt.dnQMzm.ljNVlj.kzjCbV.dqpYKm.RVUSp.fzpbtJ.bYPzoC", el => el.innerText).catch(() => "Unknown");
+            console.log(`${getCurrentTime()} - 🎯 Current Points after Press (${i}/5): ${currentPoints}`);
+          } else {
+            console.log(`${getCurrentTime()} - ⚠️ 'Press' button not found.`);
+            break;
+          }
+
+          await delay(10000);
+        }
+
+        const bankClicked = await page.$$eval("button:nth-child(3) > div > p", buttons => {
+          const target = buttons.find(btn => btn.innerText && btn.innerText.includes("Bank"));
+          if (target) {
+            target.click();
+            return true;
+          }
+          return false;
+        });
+
+        if (bankClicked) {
+          console.log(`${getCurrentTime()} - 🏦 Bank button clicked.`);
+          await delay(3000);
+
+          const diceRollResult = await page.$eval("h2.gRUWXt.dnQMzm.ljNVlj.kzjCbV.dqpYKm.RVUSp.fzpbtJ.bYPzoC", el => el.innerText).catch(() => "Unknown");
+          console.log(`${getCurrentTime()} - 🎲 Dice Roll Result: ${diceRollResult} points`);
+
+          userCredits = await page.$eval("#creditBalance", el => el.innerText).catch(() => "Unknown");
+          console.log(`${getCurrentTime()} - 💳 Final Balance after dice roll: ${userCredits}`);
+        } else {
+          console.log(`${getCurrentTime()} - ⚠️ 'Bank' button not found.`);
+        }
       } else {
         console.log(`${getCurrentTime()} - ⚠️ 'Throw Dice' button not found.`);
       }
@@ -108,9 +130,9 @@ async function runAccount(cookie) {
 
 (async () => {
   console.clear();
-  displayHeader(); // Tambahkan header di sini
+  displayHeader();
   console.log(`${getCurrentTime()} - 🚀 Starting MagicNewton Bot...`);
-  const data = loadData("data.txt");
+  const data = fs.readFileSync("data.txt", "utf8").split("\n").filter(Boolean);
 
   while (true) {
     try {
